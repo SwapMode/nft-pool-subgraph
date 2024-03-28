@@ -5,7 +5,7 @@ import {
   Transfer,
   WithdrawFromPosition,
 } from "./types/templates/NFTPool/NFTPool";
-import { ADDRESS_ZERO, BI_18, ZERO_BD } from "./utils/constants";
+import { ADDRESS_ZERO, BI_18 } from "./utils/constants";
 import {
   convertTokenToDecimal,
   createUser,
@@ -13,35 +13,27 @@ import {
   getPositionID,
 } from "./utils/helpers";
 
-// // emit Transfer(address(0), to, tokenId);
-// export function handleMint(event: Burn) {
-//   // Transfer event with "from" = zero address is a mint
-//   // handleCreatePosition should have this covered
-// }
-
-// // emit Transfer(owner, address(0), tokenId);
-// export function handleBurn(event: Burn) {
-//   //  Transfer event with "to" = zero address is a burn
-// }
-
 // event CreatePosition(uint256 indexed tokenId, uint256 amount, uint256 lockDuration);
 export function handleCreatePosition(event: CreatePosition): void {
   let from = event.transaction.from;
-
   // create and save user if needed
   createUser(from);
 
   let tokenId = event.params.tokenId;
   let position = new Position(getPositionID(event.address, tokenId));
 
+  let amount = convertTokenToDecimal(event.params.amount, BI_18);
   // @note May not need this with attaching user now
   position.owner = from;
   position.user = from.toHexString();
-  position.liquidityTokenBalance = convertTokenToDecimal(event.params.amount, BI_18);
+  position.liquidityTokenBalance = amount;
   position.pool = event.address.toHexString();
   position.tokenId = tokenId;
-
   position.save();
+
+  let userTotalBalance = createUserTotalBalanceForPool(from, event.address);
+  userTotalBalance.balance = userTotalBalance.balance.plus(amount);
+  userTotalBalance.save();
 }
 
 // event AddToPosition(uint256 indexed tokenId, address user, uint256 amount);
@@ -90,20 +82,6 @@ export function handleTransfer(event: Transfer): void {
   // Update position and user amounts
   let position = Position.load(getPositionID(event.address, event.params.tokenId));
   if (!position) return;
-
-  // // TODO: Burn. Confirm withdraw handling takes care of everything we need for now
-  // if (event.params.to.toHexString() == ADDRESS_ZERO) {
-  //   position.liquidityTokenBalance = ZERO_BD;
-  //   position.save();
-
-  //   let userTotalBalance = createUserTotalBalanceForPool(event.transaction.from, event.address);
-  //   userTotalBalance.balance = userTotalBalance.balance.minus(position.liquidityTokenBalance);
-  //   userTotalBalance.save();
-
-  //   return;
-  // }
-
-  // TODO: Handle transfer between accounts
 
   position.owner = event.params.to;
   position.user = event.params.to.toHexString();

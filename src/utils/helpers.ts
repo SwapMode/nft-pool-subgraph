@@ -31,11 +31,11 @@ export function createUserTotalBalanceForPool(
 }
 
 export function getPositionID(poolAddress: Address, tokenId: BigInt): string {
-  return poolAddress.toHexString().concat("-").concat(tokenId.toString());
+  return poolAddress.toHexString() + "-" + tokenId.toString();
 }
 
 export function getUserTotalBalanceID(userAddress: Address, poolAddress: Address): string {
-  return userAddress.toHexString().concat("-").concat(poolAddress.toString());
+  return userAddress.toHexString() + "-" + poolAddress.toHexString();
 }
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
