@@ -88,24 +88,25 @@ export function handleTransfer(event: Transfer): void {
     return;
   }
 
-  // Update positions user/account link
+  // Update position and user amounts
   let position = Position.load(getPositionID(event.address, event.params.tokenId));
   if (!position) return;
 
-  // Burn. Withdraw handling may take care of  whatever we need for now
-  if (event.params.to.toHexString() == ADDRESS_ZERO) {
-    // // Remove position link to user
-    // position.owner = null;
-    // position.user = "";
-    position.liquidityTokenBalance = ZERO_BD;
-    position.save();
+  // TODO: Burn. Confirm withdraw handling takes care of everything we need for now
+  // if (event.params.to.toHexString() == ADDRESS_ZERO) {
+  //   position.liquidityTokenBalance = ZERO_BD;
+  //   position.save();
 
-    let userTotalBalance = createUserTotalBalanceForPool(event.transaction.from, event.address);
-    userTotalBalance.balance = userTotalBalance.balance.minus(position.liquidityTokenBalance);
-    userTotalBalance.save();
+  //   let userTotalBalance = createUserTotalBalanceForPool(event.transaction.from, event.address);
+  //   userTotalBalance.balance = userTotalBalance.balance.minus(position.liquidityTokenBalance);
+  //   userTotalBalance.save();
 
-    return;
-  }
+  //   return;
+  // }
 
   // TODO: Handle transfer between accounts
+
+  position.owner = event.params.to;
+  position.user = event.params.to.toHexString();
+  position.save();
 }
