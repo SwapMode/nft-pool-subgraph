@@ -1,4 +1,4 @@
-import { Position } from "./types/schema";
+import { Burn, Position } from "./types/schema";
 import {
   AddToPosition,
   CreatePosition,
@@ -6,13 +6,24 @@ import {
   Transfer,
   WithdrawFromPosition,
 } from "./types/templates/NFTPool/NFTPool";
-import { ADDRESS_ZERO, BI_18 } from "./utils/constants";
+import { ADDRESS_ZERO, BI_18, ZERO_BD } from "./utils/constants";
 import {
   convertTokenToDecimal,
   createUser,
   createUserTotalBalanceForPool,
   getPositionID,
 } from "./utils/helpers";
+
+// // emit Transfer(address(0), to, tokenId);
+// export function handleMint(event: Burn) {
+//   // Transfer event with "from" = zero address is a mint
+//   // handleCreatePosition should have this covered
+// }
+
+// // emit Transfer(owner, address(0), tokenId);
+// export function handleBurn(event: Burn) {
+//   //  Transfer event with "to" = zero address is a burn
+// }
 
 // event CreatePosition(uint256 indexed tokenId, uint256 amount, uint256 lockDuration);
 export function handleCreatePosition(event: CreatePosition): void {
@@ -28,7 +39,6 @@ export function handleCreatePosition(event: CreatePosition): void {
   position.owner = from;
   position.user = from.toHexString();
   position.liquidityTokenBalance = convertTokenToDecimal(event.params.amount, BI_18);
-
   position.pool = event.address.toHexString();
   position.tokenId = tokenId;
 
@@ -39,7 +49,7 @@ export function handleCreatePosition(event: CreatePosition): void {
 export function handleAddToPosition(event: AddToPosition): void {
   // Can only be called by the current owner of the position
 
-  // Shouldn't be needed..?
+  // Shouldn't be needed after transfer is added..?
   let user = event.transaction.from;
   createUser(user);
 
@@ -72,40 +82,30 @@ export function handleWithdrawFromPosition(event: WithdrawFromPosition): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-  // // ignore initial transfers for mints
-  // // Owner is assigned in handleCreatePosition
-  // if (event.params.from.toHexString() == ADDRESS_ZERO) {
-  //   return;
-  // }
-  // // Update positions user/account link
-  // let position = Position.load(getPositionID(event.address, event.params.tokenId));
-  // if (!position) return;
-  // // TODO: Handle burns
-  // if (event.params.to.toHexString() == ADDRESS_ZERO) {
-  //   // Remove position link to user
-  //   position.owner = null;
-  //   position.user = "";
-  //   position.liquidityTokenBalance = 0
-  //   position.save();
-  //   return;
-  // }
-  // @note Can use a tx entity to store teh historical link/reference
-  // type Transfer @entity {
-  //   # hash?
-  //   id: ID!
-  //   # NFT ID
-  //   tokenId: BigInt!
-  //   # account transferring the position
-  //   from: Bytes!
-  //   # new owner of position
-  //   to: Bytes!
-  //   transaction: Transaction!
-  // }
-  // let from = event.params.from;
-  // createUser(from);
-  // let to = event.params.to;
-  // createUser(to);
-  // position.owner = to;
-  // position.user = to.toHexString();
-  // position.save();
+  // ignore initial transfers for mints
+  // Owner is assigned in handleCreatePosition
+  if (event.params.from.toHexString() == ADDRESS_ZERO) {
+    return;
+  }
+
+  // Update positions user/account link
+  let position = Position.load(getPositionID(event.address, event.params.tokenId));
+  if (!position) return;
+
+  // Burn. Withdraw handling may take care of  whatever we need for now
+  if (event.params.to.toHexString() == ADDRESS_ZERO) {
+    // // Remove position link to user
+    // position.owner = null;
+    // position.user = "";
+    position.liquidityTokenBalance = ZERO_BD;
+    position.save();
+
+    let userTotalBalance = createUserTotalBalanceForPool(event.transaction.from, event.address);
+    userTotalBalance.balance = userTotalBalance.balance.minus(position.liquidityTokenBalance);
+    userTotalBalance.save();
+
+    return;
+  }
+
+  // TODO: Handle transfer between accounts
 }
