@@ -1,1 +1,1 @@
-export function handleTransfer() {}
+export function handleTransfer(): void {}

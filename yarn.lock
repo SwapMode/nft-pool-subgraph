@@ -5936,6 +5936,13 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
+matchstick-as@0.6.0-beta.2:
+  version "0.6.0-beta.2"
+  resolved "https://registry.yarnpkg.com/matchstick-as/-/matchstick-as-0.6.0-beta.2.tgz#0dd1cff1c01b2b34b2176aa0a41cd3a36a2177d9"
+  integrity sha512-bthIVZTN4qMz3XkSfHoS+YAUvPdCHFcrN3sWhSQ9GiSaX5I5WTtVNW3nXitD1aWsEiqA7fTUApLmAfjubVsb3w==
+  dependencies:
+    wabt "1.0.24"
+
 md5.js@^1.3.4:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/md5.js/-/md5.js-1.3.5.tgz#b5d07b8e3216e3e27cd728d72f70d1e6a342005f"
@@ -8090,6 +8097,11 @@ w3c-xmlserializer@^2.0.0:
   integrity sha512-4tzD0mF8iSiMiNs30BiLO3EpfGLZUT2MSX/G+o7ZywDzliWQ3OPtTZ0PTC3B3ca1UAf4cJMHB+2Bf56EriJuRA==
   dependencies:
     xml-name-validator "^3.0.0"
+
+wabt@1.0.24:
+  version "1.0.24"
+  resolved "https://registry.yarnpkg.com/wabt/-/wabt-1.0.24.tgz#c02e0b5b4503b94feaf4a30a426ef01c1bea7c6c"
+  integrity sha512-8l7sIOd3i5GWfTWciPL0+ff/FK/deVK2Q6FN+MPz4vfUcD78i2M/49XJTwF6aml91uIiuXJEsLKWMB2cw/mtKg==
 
 walker@^1.0.7, walker@~1.0.5:
   version "1.0.8"

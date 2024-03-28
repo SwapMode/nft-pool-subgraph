@@ -12,3 +12,12 @@ type NFTPool @entity {
   # total amount of deposit token in pool
   lpSupply: BigInt!
 }
+
+type Transfer @entity {
+  # hash?
+  id: ID!
+
+  tokenId: BigInt!
+  from: Bytes!
+  to: Bytes!
+}
