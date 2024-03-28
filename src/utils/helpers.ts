@@ -1,6 +1,6 @@
 import { log, BigInt, BigDecimal, Address, ethereum } from "@graphprotocol/graph-ts";
-import { User } from "../types/schema";
-import { ONE_BI, ZERO_BI } from "./constants";
+import { User, UserTotalBalanceForPool } from "../types/schema";
+import { ONE_BI, ZERO_BD, ZERO_BI } from "./constants";
 
 export function createUser(address: Address): User {
   let user = User.load(address.toHexString());
@@ -12,8 +12,30 @@ export function createUser(address: Address): User {
   return user;
 }
 
+export function createUserTotalBalanceForPool(
+  userAddress: Address,
+  poolAddress: Address
+): UserTotalBalanceForPool {
+  let id = getUserTotalBalanceID(userAddress, poolAddress);
+  let userBalance = UserTotalBalanceForPool.load(id);
+  if (userBalance === null) {
+    userBalance = new UserTotalBalanceForPool(id);
+    userBalance.pool = poolAddress.toHexString();
+    userBalance.user = userAddress.toHexString();
+    userBalance.balance = ZERO_BD;
+
+    userBalance.save();
+  }
+
+  return userBalance;
+}
+
 export function getPositionID(poolAddress: Address, tokenId: BigInt): string {
   return poolAddress.toHexString().concat("-").concat(tokenId.toString());
+}
+
+export function getUserTotalBalanceID(userAddress: Address, poolAddress: Address): string {
+  return userAddress.toHexString().concat("-").concat(poolAddress.toString());
 }
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {

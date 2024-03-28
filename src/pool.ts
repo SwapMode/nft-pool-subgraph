@@ -1,4 +1,4 @@
-import { NFTPool, Position } from "./types/schema";
+import { NFTPool, Position, UserTotalBalanceForPool } from "./types/schema";
 import {
   AddToPosition,
   CreatePosition,
@@ -7,7 +7,13 @@ import {
   WithdrawFromPosition,
 } from "./types/templates/NFTPool/NFTPool";
 import { ADDRESS_ZERO, BI_18 } from "./utils/constants";
-import { convertTokenToDecimal, createUser, getPositionID } from "./utils/helpers";
+import {
+  convertTokenToDecimal,
+  createUser,
+  createUserTotalBalanceForPool,
+  getPositionID,
+  getUserTotalBalanceID,
+} from "./utils/helpers";
 
 // event CreatePosition(uint256 indexed tokenId, uint256 amount, uint256 lockDuration);
 export function handleCreatePosition(event: CreatePosition): void {
@@ -32,15 +38,22 @@ export function handleCreatePosition(event: CreatePosition): void {
 
 // event AddToPosition(uint256 indexed tokenId, address user, uint256 amount);
 export function handleAddToPosition(event: AddToPosition): void {
-  // Can only be added to by the current owner of the position
+  // Can only be called by the current owner of the position
+
+  // Shouldn't be needed..?
+  let user = event.transaction.from;
+  createUser(user);
+
   let position = Position.load(getPositionID(event.address, event.params.tokenId));
   if (!position) return;
 
-  position.liquidityTokenBalance = position.liquidityTokenBalance.plus(
-    convertTokenToDecimal(event.params.amount, BI_18)
-  );
-
+  let amount = convertTokenToDecimal(event.params.amount, BI_18);
+  position.liquidityTokenBalance = position.liquidityTokenBalance.plus(amount);
   position.save();
+
+  let userTotalBalance = createUserTotalBalanceForPool(user, event.address);
+  userTotalBalance.balance = userTotalBalance.balance.plus(amount);
+  userTotalBalance.save();
 }
 
 // event WithdrawFromPosition(uint256 indexed tokenId, uint256 amount);

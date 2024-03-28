@@ -28,6 +28,15 @@ type User @entity {
   positions: [Position!] @derivedFrom(field: "user")
 }
 
+type UserTotalBalanceForPool @entity {
+  # user address - pool address
+  id: ID!
+  user: User!
+  pool: NFTPool!
+
+  balance: BigDecimal!
+}
+
 type Position @entity {
   # pool address - token Id
   id: ID!
