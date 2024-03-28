@@ -8,16 +8,99 @@ type NFTPoolFactory @entity {
 type NFTPool @entity {
   # address
   id: ID!
-
+  # LP token accepted for deposit
+  lpToken: Bytes!
   # total amount of deposit token in pool
-  lpSupply: BigInt!
+  lpSupply: BigDecimal!
+  # total amount of deposit token in pool with lock and boost multipliers added
+  lpSupplyWithMultiplier: BigDecimal!
+
+  # derived fields
+  mints: [Mint!]! @derivedFrom(field: "pool")
+  burns: [Burn!]! @derivedFrom(field: "pool")
+}
+
+type User @entity {
+  # account address
+  id: ID!
+  positions: [Position!] @derivedFrom(field: "user")
+}
+
+type Position @entity {
+  # pool address - token Id
+  id: ID!
+
+  # pool position is within
+  pool: NFTPool!
+
+  liquidityTokenBalance: BigDecimal!
+
+  # current account that owns the position
+  owner: Bytes!
+  user: User!
 }
 
 type Transfer @entity {
   # hash?
   id: ID!
-
+  # NFT ID
   tokenId: BigInt!
+  # account transferring the position
   from: Bytes!
+  # new owner of position
   to: Bytes!
+
+  transaction: Transaction!
+}
+
+type Transaction @entity {
+  # txn hash
+  id: ID!
+  # block txn was included in
+  blockNumber: BigInt!
+  # timestamp txn was confirmed
+  timestamp: BigInt!
+
+  # derived values
+  transfers: [Transfer!]! @derivedFrom(field: "transaction")
+  mints: [Mint!]! @derivedFrom(field: "transaction")
+  burns: [Burn!]! @derivedFrom(field: "transaction")
+  # swaps: [Swap!]! @derivedFrom(field: "transaction")
+  # flashed: [Flash!]! @derivedFrom(field: "transaction")
+  # collects: [Collect!]! @derivedFrom(field: "transaction")
+}
+
+type Mint @entity {
+  # transaction hash + "#" + index in mints Transaction array
+  id: ID!
+  # ID for minted NFT
+  tokenId: BigInt!
+  # pool position is within
+  pool: NFTPool!
+  # owner of position where NFT minted to
+  owner: Bytes!
+  # the address that minted the NFT
+  sender: Bytes
+  # txn origin
+  origin: Bytes! # the EOA that initiated the txn
+  # time of txn
+  timestamp: BigInt!
+  # which txn the mint was included in
+  transaction: Transaction!
+}
+
+type Burn @entity {
+  # transaction hash + "#" + index in mints Transaction array
+  id: ID!
+  # ID for minted NFT
+  tokenId: BigInt!
+  # pool position is within
+  pool: NFTPool!
+  # owner of position where liquidity was burned
+  owner: Bytes
+
+  # need this to pull recent txns for specific token or pool
+  timestamp: BigInt!
+  # txn burn was included in
+  transaction: Transaction!
 }
