@@ -1,4 +1,6 @@
-import { Position } from "./types/schema";
+import { NFTPool, Position } from "./types/schema";
+import { V2Pair as PairContract } from "./types/templates/V2Pair/V2Pair";
+import { V2Pair as PairTemplate } from "./types/templates";
 import {
   AddToPosition,
   CreatePosition,
@@ -12,6 +14,7 @@ import {
   createUserTotalBalanceForPool,
   getPositionID,
 } from "./utils/helpers";
+import { Address } from "@graphprotocol/graph-ts";
 
 // event CreatePosition(uint256 indexed tokenId, uint256 amount, uint256 lockDuration);
 export function handleCreatePosition(event: CreatePosition): void {
@@ -34,6 +37,12 @@ export function handleCreatePosition(event: CreatePosition): void {
   let userTotalBalance = createUserTotalBalanceForPool(from, event.address);
   userTotalBalance.balance = userTotalBalance.balance.plus(amount);
   userTotalBalance.save();
+
+  let nftPool = NFTPool.load(event.address.toHexString());
+  if (!nftPool) return;
+
+  // For getting underlying V2 pool data as needed
+  PairTemplate.create(Address.fromBytes(nftPool.lpToken));
 }
 
 // event AddToPosition(uint256 indexed tokenId, address user, uint256 amount);
@@ -52,8 +61,13 @@ export function handleAddToPosition(event: AddToPosition): void {
   position.liquidityTokenBalance = position.liquidityTokenBalance.plus(amount);
   position.save();
 
+  let nftPool = NFTPool.load(event.address.toHexString());
+  if (!nftPool) return;
+
   let userTotalBalance = createUserTotalBalanceForPool(user, event.address);
   userTotalBalance.balance = userTotalBalance.balance.plus(amount);
+  let pairContract = PairContract.bind(Address.fromBytes(nftPool.lpToken));
+  userTotalBalance.walletLpBalance = convertTokenToDecimal(pairContract.balanceOf(user), BI_18);
   userTotalBalance.save();
 }
 
@@ -67,8 +81,16 @@ export function handleWithdrawFromPosition(event: WithdrawFromPosition): void {
   position.liquidityTokenBalance = position.liquidityTokenBalance.minus(amount);
   position.save();
 
+  let nftPool = NFTPool.load(event.address.toHexString());
+  if (!nftPool) return;
+
   let userTotalBalance = createUserTotalBalanceForPool(event.transaction.from, event.address);
   userTotalBalance.balance = userTotalBalance.balance.minus(amount);
+  let pairContract = PairContract.bind(Address.fromBytes(nftPool.lpToken));
+  userTotalBalance.walletLpBalance = convertTokenToDecimal(
+    pairContract.balanceOf(event.transaction.from),
+    BI_18
+  );
   userTotalBalance.save();
 }
 
@@ -79,11 +101,41 @@ export function handleTransfer(event: Transfer): void {
     return;
   }
 
+  let sender = event.params.from;
+  let receiver = event.params.to;
+
   // Update position and user amounts
   let position = Position.load(getPositionID(event.address, event.params.tokenId));
   if (!position) return;
 
-  position.owner = event.params.to;
-  position.user = event.params.to.toHexString();
+  position.owner = receiver;
+  position.user = receiver.toHexString();
   position.save();
+
+  // TODO: Have to update total balances for from/to
+
+  let nftPool = NFTPool.load(event.address.toHexString());
+  if (!nftPool) return;
+
+  // Need the nft positions amount
+  let pairContract = PairContract.bind(Address.fromBytes(nftPool.lpToken));
+
+  // Update both wallet lp balances
+
+  // Deduct from senders total balance
+  let userTotalBalance = createUserTotalBalanceForPool(sender, event.address);
+  userTotalBalance.balance = userTotalBalance.balance.minus(position.liquidityTokenBalance);
+  userTotalBalance.walletLpBalance = convertTokenToDecimal(pairContract.balanceOf(sender), BI_18);
+  userTotalBalance.save();
+
+  // Aad to receivers total underlying lp amount
+  let receiversTotalBalance = createUserTotalBalanceForPool(sender, event.address);
+  receiversTotalBalance.balance = receiversTotalBalance.balance.plus(
+    position.liquidityTokenBalance
+  );
+  receiversTotalBalance.walletLpBalance = convertTokenToDecimal(
+    pairContract.balanceOf(receiver),
+    BI_18
+  );
+  receiversTotalBalance.save();
 }

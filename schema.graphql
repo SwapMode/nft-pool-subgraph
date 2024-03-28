@@ -35,6 +35,12 @@ type UserTotalBalanceForPool @entity {
   pool: NFTPool!
 
   balance: BigDecimal!
+  walletLpBalance: BigDecimal!
+}
+
+type V2Pair @entity {
+  id: ID!
+  totalSupply: BigDecimal!
 }
 
 type Position @entity {
