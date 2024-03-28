@@ -1,7 +1,6 @@
-import { FACTORY_ADDRESS, ONE_BI, ZERO_BI } from "./utils/constants";
+import { FACTORY_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from "./utils/constants";
 import { PoolCreated } from "./types/NFTPoolFactory/NFTPoolFactory";
-import { NFTPoolFactory } from "./types/schema";
-import { createUser } from "./utils/helpers";
+import { NFTPool, NFTPoolFactory } from "./types/schema";
 
 export function handlePoolCreated(event: PoolCreated): void {
   let factory = NFTPoolFactory.load(FACTORY_ADDRESS);
@@ -14,5 +13,9 @@ export function handlePoolCreated(event: PoolCreated): void {
   factory.poolCount = factory.poolCount.plus(ONE_BI);
   factory.save();
 
-  createUser(event.transaction.from);
+  let pool = new NFTPool(event.params.pool.toHexString());
+  pool.lpToken = event.params.lpToken;
+  pool.lpSupply = ZERO_BD;
+  pool.lpSupplyWithMultiplier = ZERO_BD;
+  pool.save();
 }

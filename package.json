@@ -4,7 +4,7 @@
   "scripts": {
     "create": "graph create swapmodefi/nft-pool-subgraph --node https://api.thegraph.com/deploy/",
     "create:local": "graph create swapmodefi/nft-pool-subgraph --node http://127.0.0.1:8020",
-    "codegen": "yarn generate-manifests && graph codegen subgraph.mode.yaml --output-dir src/types/ ",
+    "codegen": "npx graph codegen subgraph.mode.yaml --output-dir src/types/ ",
     "build": "graph build subgraph.mode.yaml",
     "lint": "eslint --max-warnings 0 . --ext .ts",
     "test": "jest ./test/*.test.ts",

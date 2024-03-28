@@ -18,6 +18,8 @@ type NFTPool @entity {
   # derived fields
   mints: [Mint!]! @derivedFrom(field: "pool")
   burns: [Burn!]! @derivedFrom(field: "pool")
+
+  positions: [Position!] @derivedFrom(field: "pool")
 }
 
 type User @entity {
@@ -30,6 +32,7 @@ type Position @entity {
   # pool address - token Id
   id: ID!
 
+  tokenId: BigInt!
   # pool position is within
   pool: NFTPool!
 
