@@ -30,6 +30,29 @@ export function handleCreatePosition(event: CreatePosition): void {
   position.save();
 }
 
+// event AddToPosition(uint256 indexed tokenId, address user, uint256 amount);
+export function handleAddToPosition(event: AddToPosition): void {
+  // Can only be added to by the current owner of the position
+  let position = Position.load(getPositionID(event.address, event.params.tokenId));
+  if (!position) return;
+
+  position.liquidityTokenBalance = position.liquidityTokenBalance.plus(
+    convertTokenToDecimal(event.params.amount, BI_18)
+  );
+
+  position.save();
+}
+
+// event WithdrawFromPosition(uint256 indexed tokenId, uint256 amount);
+export function handleWithdrawFromPosition(event: WithdrawFromPosition): void {
+  //
+}
+
+// event EmergencyWithdraw(uint256 indexed tokenId, uint256 amount);
+export function handleEmergencyWithdraw(event: EmergencyWithdraw): void {
+  //
+}
+
 export function handleTransfer(event: Transfer): void {
   // // ignore initial transfers for mints
   // // Owner is assigned in handleCreatePosition
@@ -48,6 +71,18 @@ export function handleTransfer(event: Transfer): void {
   //   position.save();
   //   return;
   // }
+  // @note Can use a tx entity to store teh historical link/reference
+  // type Transfer @entity {
+  //   # hash?
+  //   id: ID!
+  //   # NFT ID
+  //   tokenId: BigInt!
+  //   # account transferring the position
+  //   from: Bytes!
+  //   # new owner of position
+  //   to: Bytes!
+  //   transaction: Transaction!
+  // }
   // let from = event.params.from;
   // createUser(from);
   // let to = event.params.to;
@@ -55,19 +90,4 @@ export function handleTransfer(event: Transfer): void {
   // position.owner = to;
   // position.user = to.toHexString();
   // position.save();
-}
-
-// event AddToPosition(uint256 indexed tokenId, address user, uint256 amount);
-export function handleAddToPosition(event: AddToPosition): void {
-  //
-}
-
-// event WithdrawFromPosition(uint256 indexed tokenId, uint256 amount);
-export function handleWithdrawFromPosition(event: WithdrawFromPosition): void {
-  //
-}
-
-// event EmergencyWithdraw(uint256 indexed tokenId, uint256 amount);
-export function handleEmergencyWithdraw(event: EmergencyWithdraw): void {
-  //
 }

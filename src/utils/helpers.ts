@@ -13,7 +13,7 @@ export function createUser(address: Address): User {
 }
 
 export function getPositionID(poolAddress: Address, tokenId: BigInt): string {
-  return poolAddress.toHexString().concat(tokenId.toString());
+  return poolAddress.toHexString().concat("-").concat(tokenId.toString());
 }
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {

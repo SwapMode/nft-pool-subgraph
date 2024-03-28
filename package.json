@@ -1,5 +1,5 @@
 {
-  "name": "subgraph-template",
+  "name": "@swapmodefi/nft-pool-subgraph",
   "version": "0.1.0",
   "scripts": {
     "create": "graph create swapmodefi/nft-pool-subgraph --node https://api.thegraph.com/deploy/",
@@ -9,7 +9,7 @@
     "lint": "eslint --max-warnings 0 . --ext .ts",
     "test": "jest ./test/*.test.ts",
     "graph:test": "npx graph",
-    "deploy": "graph deploy ",
+    "deploy": "goldsky subgraph deploy",
     "deploy:local": "graph deploy swapmodefi/nft-pool-subgraph subgraph.yaml --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "import-abis": "ts-node ./scripts/update-abis.ts",
     "generate-assets": "ts-node ./scripts/generate-assets",
