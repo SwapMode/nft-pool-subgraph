@@ -79,11 +79,24 @@ export function handleTransfer(event: Transfer): void {
     return;
   }
 
+  let sender = event.params.from;
+  let receiver = event.params.to;
+
   // Update position and user amounts
   let position = Position.load(getPositionID(event.address, event.params.tokenId));
   if (!position) return;
 
-  position.owner = event.params.to;
-  position.user = event.params.to.toHexString();
+  position.owner = receiver;
+  position.user = receiver.toHexString();
   position.save();
+
+  // Shift total position balances as needed
+  let amount = position.liquidityTokenBalance;
+  let userTotalBalance = createUserTotalBalanceForPool(sender, event.address);
+  userTotalBalance.balance = userTotalBalance.balance.minus(amount);
+  userTotalBalance.save();
+
+  let receiverTotalBalance = createUserTotalBalanceForPool(receiver, event.address);
+  receiverTotalBalance.balance = receiverTotalBalance.balance.plus(amount);
+  receiverTotalBalance.save();
 }
