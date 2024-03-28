@@ -93,16 +93,16 @@ export function handleTransfer(event: Transfer): void {
   if (!position) return;
 
   // TODO: Burn. Confirm withdraw handling takes care of everything we need for now
-  // if (event.params.to.toHexString() == ADDRESS_ZERO) {
-  //   position.liquidityTokenBalance = ZERO_BD;
-  //   position.save();
+  if (event.params.to.toHexString() == ADDRESS_ZERO) {
+    position.liquidityTokenBalance = ZERO_BD;
+    position.save();
 
-  //   let userTotalBalance = createUserTotalBalanceForPool(event.transaction.from, event.address);
-  //   userTotalBalance.balance = userTotalBalance.balance.minus(position.liquidityTokenBalance);
-  //   userTotalBalance.save();
+    let userTotalBalance = createUserTotalBalanceForPool(event.transaction.from, event.address);
+    userTotalBalance.balance = userTotalBalance.balance.minus(position.liquidityTokenBalance);
+    userTotalBalance.save();
 
-  //   return;
-  // }
+    return;
+  }
 
   // TODO: Handle transfer between accounts
 
