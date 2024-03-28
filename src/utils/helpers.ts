@@ -23,7 +23,7 @@ export function createUserTotalBalanceForPool(
     userBalance.pool = poolAddress.toHexString();
     userBalance.user = userAddress.toHexString();
     userBalance.balance = ZERO_BD;
-
+    userBalance.walletLpBalance = ZERO_BD;
     userBalance.save();
   }
 
