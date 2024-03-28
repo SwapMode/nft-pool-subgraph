@@ -39,8 +39,8 @@ type Position @entity {
   liquidityTokenBalance: BigDecimal!
 
   # current account that owns the position
-  owner: Bytes!
-  user: User!
+  owner: Bytes
+  user: User
 }
 
 type Transfer @entity {

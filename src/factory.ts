@@ -1,6 +1,7 @@
 import { FACTORY_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from "./utils/constants";
 import { PoolCreated } from "./types/NFTPoolFactory/NFTPoolFactory";
 import { NFTPool, NFTPoolFactory } from "./types/schema";
+import { NFTPool as NFTPoolTemplate } from "./types/templates";
 
 export function handlePoolCreated(event: PoolCreated): void {
   let factory = NFTPoolFactory.load(FACTORY_ADDRESS);
@@ -17,5 +18,7 @@ export function handlePoolCreated(event: PoolCreated): void {
   pool.lpToken = event.params.lpToken;
   pool.lpSupply = ZERO_BD;
   pool.lpSupplyWithMultiplier = ZERO_BD;
+  // create the tracked contract based on the template
+  NFTPoolTemplate.create(event.params.pool);
   pool.save();
 }
