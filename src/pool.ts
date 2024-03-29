@@ -73,9 +73,12 @@ export function handleWithdrawFromPosition(event: WithdrawFromPosition): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-  // ignore initial transfers for mints
-  // Owner is assigned in handleCreatePosition
-  if (event.params.from.toHexString() == ADDRESS_ZERO) {
+  // Ignore initial transfers for mints. Owner is assigned in handleCreatePosition
+  // Also burns should be handled by handleWithdraw handler
+  if (
+    event.params.from.toHexString() == ADDRESS_ZERO ||
+    event.params.to.toHexString() == ADDRESS_ZERO
+  ) {
     return;
   }
 
