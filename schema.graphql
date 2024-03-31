@@ -15,6 +15,17 @@ type NFTPool @entity {
   # total amount of deposit token in pool with lock and boost multipliers added
   lpSupplyWithMultiplier: BigDecimal!
 
+  # allocPoints: BigDecimal!
+  # allocPointsWETH: BigDecimal!
+  # poolEmissionRate: BigDecimal!
+  # poolEmissionRateWETH: BigDecimal!
+
+  # maxGlobalMultiplier: BigInt!
+  # maxLockDuration: BigInt!
+  # maxLockMultiplier: BigInt!
+  # maxBoostMultiplier: BigInt!
+  # xTokenRewardsShare: BigInt!
+
   positions: [Position!] @derivedFrom(field: "pool")
 }
 

@@ -1,4 +1,4 @@
-import { log, BigInt, BigDecimal, Address, ethereum } from "@graphprotocol/graph-ts";
+import { log, BigInt, BigDecimal, Address } from "@graphprotocol/graph-ts";
 import { User, UserTotalBalanceForPool } from "../types/schema";
 import { ONE_BI, ZERO_BD, ZERO_BI } from "./constants";
 
