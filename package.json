@@ -15,7 +15,6 @@
     "generate-assets": "ts-node ./scripts/generate-assets",
     "generate-manifests": "ts-node ./scripts/generate-manifests",
     "update-addresses": "ts-node ./scripts/update-addresses-subgraph.ts",
-    "update-addresses:goerli": "yarn update-addresses goerli",
     "update-addresses:local": "yarn update-addresses dockerParity",
     "sync": "yarn import-abis && yarn update-addresses && yarn codegen && yarn build",
     "sync:local": "yarn import-abis && yarn update-addresses dockerParity && yarn codegen && yarn build"

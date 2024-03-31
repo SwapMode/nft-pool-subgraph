@@ -3,3 +3,8 @@ mode:
   NFTPoolFactory:
     address: "0x78a087d713Be963Bf307b18F2Ff8122EF9A63ae9"
     startBlock: 3244360
+base:
+  network: base
+  NFTPoolFactory:
+    address: "0x1d23317069d9a01b99a2b755a4bb7528450198b8"
+    startBlock: 2756969
