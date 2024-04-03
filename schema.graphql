@@ -38,7 +38,7 @@ type User @entity {
 type UserTotalBalanceForPool @entity {
   # user address - pool address
   id: ID!
-  user: User!
+  user: User
   pool: NFTPool!
 
   balance: BigDecimal!
